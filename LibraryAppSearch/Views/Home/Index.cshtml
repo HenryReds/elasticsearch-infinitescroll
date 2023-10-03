@@ -1,0 +1,87 @@
+﻿@model Nest.ISearchResponse<Book>
+
+<form asp-controller="Home" asp-action="Index" method="post">
+    <input class="form-control" type="text" name="query" />
+    <button class="btn btn-primary type="submit">Search</button>
+</form>
+
+<h3>Search Results</h3>
+<table class="table">
+  <thead class="thead-light">
+    <tr>
+      <th scope="col">Title</th>
+      <th scope="col">ISBN</th>
+      <th scope="col">Authors</th>
+      <th scope="col">Categories</th>
+    </tr>
+  </thead>
+  <tbody>  
+      @if (Model.Documents.Any())
+        {
+
+            @foreach (var book in Model.Documents)
+            {
+            <tr>
+                <td>@book.Title</td>
+                <td>@book.Isbn</td>
+                <td>@book.Authors</td>
+                <td>@book.Categories</td>
+            </tr>
+            }
+        }
+  </tbody>
+</table>
+<br />
+<select id="combobox" class="form-control" >
+</select>
+
+@* <script type="text/javascript">
+
+    $(document).ready(function () {
+        var combobox = $("#combobox").select2({
+            placeholder: '--Select One--',
+            width: '100%',
+            allowClear: true,
+            ajax: {
+                url: "/api/home/items",
+                dataType: "json",
+                type: "GET",
+                data: function (params) {
+                    return {
+                        q: params.term
+                    };
+                },
+                processResults: function (data) {
+                    return {
+                        results: data
+                    };
+                }
+            }
+        });
+
+        $(window).scroll(function () {
+            if ($(window).scrollTop() + $(window).height() >= $(document).height()) {
+                // Load more items
+                combobox.select2("trigger", "select2:open");
+            }
+        });
+    });
+
+</script> *@
+
+@if (Model.Aggregations != null)
+{
+    <h3>Aggregations</h3>
+
+    @if (Model.Aggregations.ContainsKey("categories"))
+    {
+        <h4>Categories (Terms)</h4>
+        <ul>
+        @foreach (var bucket in Model.Aggregations.Terms("categories").Buckets)
+        {
+            <li>@bucket.Key: @bucket.DocCount</li>
+        }
+        </ul>
+    }
+}
+
