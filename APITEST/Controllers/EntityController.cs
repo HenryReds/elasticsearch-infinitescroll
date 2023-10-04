@@ -9,7 +9,7 @@ namespace APITEST.Controllers
 
     [ApiController]
     [Route("[controller]")]
-    public class WeatherForecastController : ControllerBase
+    public class EntityController : ControllerBase
     {
         private static readonly string[] Summaries = new[]
         {
@@ -19,10 +19,10 @@ namespace APITEST.Controllers
             "Freezing4", "Bracing4", "Chilly4", "Cool4", "Mild4", "Warm4", "Balmy4", "Hot4", "Sweltering4", "Scorching4"
         };
 
-        private readonly ILogger<WeatherForecastController> _logger;
+        private readonly ILogger<EntityController> _logger;
         private readonly ElasticClient _ecclient;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger, ElasticClient ecclient)
+        public EntityController(ILogger<EntityController> logger, ElasticClient ecclient)
         {
             _logger = logger;
             _ecclient = ecclient;
