@@ -1,12 +1,12 @@
 ﻿@model Nest.ISearchResponse<Book>
 
-<form asp-controller="Home" asp-action="Index" method="post">
+@* <form asp-controller="Home" asp-action="Index" method="post">
     <input class="form-control" type="text" name="query" />
     <button class="btn btn-primary type="submit">Search</button>
-</form>
+</form> *@
 
-<h3>Search Results</h3>
-<table class="table">
+<h3>Search Employees</h3>
+@* <table class="table">
   <thead class="thead-light">
     <tr>
       <th scope="col">Title</th>
@@ -30,44 +30,11 @@
             }
         }
   </tbody>
-</table>
+</table> *@
 <br />
 <select id="combobox" class="form-control" >
 </select>
-
-@* <script type="text/javascript">
-
-    $(document).ready(function () {
-        var combobox = $("#combobox").select2({
-            placeholder: '--Select One--',
-            width: '100%',
-            allowClear: true,
-            ajax: {
-                url: "/api/home/items",
-                dataType: "json",
-                type: "GET",
-                data: function (params) {
-                    return {
-                        q: params.term
-                    };
-                },
-                processResults: function (data) {
-                    return {
-                        results: data
-                    };
-                }
-            }
-        });
-
-        $(window).scroll(function () {
-            if ($(window).scrollTop() + $(window).height() >= $(document).height()) {
-                // Load more items
-                combobox.select2("trigger", "select2:open");
-            }
-        });
-    });
-
-</script> *@
+@* 
 
 @if (Model.Aggregations != null)
 {
@@ -84,4 +51,4 @@
         </ul>
     }
 }
-
+ *@

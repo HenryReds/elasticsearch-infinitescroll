@@ -17,8 +17,8 @@ builder.Services.AddControllers(opt => {
 });
 
 var pool = new SingleNodeConnectionPool(new Uri("http://localhost:9200"));
-var settings = new ConnectionSettings(pool).DefaultIndex("books-index")
-    .BasicAuthentication(username: "elastic", password: "Globant2022*");
+var settings = new ConnectionSettings(pool).DefaultIndex("employees-index")
+    .BasicAuthentication(username: "elastic", password: "Xz=etNxtSFHJgih2_tk+");
 var client = new ElasticClient(settings);
 builder.Services.AddSingleton(client);
 

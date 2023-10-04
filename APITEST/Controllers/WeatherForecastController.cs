@@ -1,13 +1,8 @@
-using APITEST.Controllers;
 using APITEST.Models;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 using Nest;
-using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
-using System.Net;
 
 namespace APITEST.Controllers
 {
@@ -62,11 +57,12 @@ namespace APITEST.Controllers
 
             //return new JsonResult(result);
 
-            var result = GetData(term, page, resultCount);
+            //var result = GetDataBooks(term, page, resultCount);
+            var result = GetDataEmployees(term, page, resultCount);
             return new JsonResult(result);
         }
 
-        private object GetData(string query, int page, int resultCount)
+        private object GetDataBooks(string query, int page, int resultCount)
         {
             var offSet = (page - 1) * resultCount;
 
@@ -141,6 +137,58 @@ namespace APITEST.Controllers
 
             return finalResult;
         }
+
+        private object GetDataEmployees(string query, int page, int resultCount)
+        {
+            var offSet = (page - 1) * resultCount;           
+            query = query?.ToLower();
+
+            var total = _ecclient.Search<Employee>(s => s
+                    .Query(q => q
+                        .Bool(b => b
+                            .Should(
+                                bs => bs.Term(t => t.firstName, query),
+                                bs => bs.Term(t => t.lastName, query),
+                                bs => bs.Term(t => t.email, query)
+                            )
+                        )
+                    )
+             ).Total;
+
+            var data = _ecclient.Search<Employee>(s => s
+                 .Size(resultCount)
+                 .Skip(offSet)
+                 .Index("employees-index")
+                  .Query(q => q
+                        .Bool(b => b
+                            .Should(
+                                bs => bs.Term(t => t.firstName, query),
+                                bs => bs.Term(t => t.lastName, query),
+                                bs => bs.Term(t => t.email, query)
+                            )
+                        )
+                    )
+             );
+
+            var endCount = offSet + resultCount;
+            var more = endCount < total;
+            var pagination = new { more = more };
+
+            var results = (from c in data.Hits.ToList()
+                           select new Item()
+                           {
+                               Id = c.Source.personID,
+                               Text = c.Source.firstName + " " + c.Source.lastName
+                           }).ToArray();
+
+            object finalResult = new
+            {
+                results,
+                pagination
+            };
+
+            return finalResult;
+        }
     }
 
     public class Item
@@ -161,12 +209,12 @@ namespace APITEST.Controllers
             }
 
             var model = string.Empty;
-            if (bindingContext.ValueProvider.GetValue("name").FirstOrDefault() != null)
+            if (bindingContext.ValueProvider.GetValue("term").FirstOrDefault() != null)
             {
                 //if the parameter is not null. get the value.
 
 
-                model = bindingContext.ValueProvider.GetValue("name").FirstOrDefault();
+                model = bindingContext.ValueProvider.GetValue("term").FirstOrDefault();
             }
             else
             {
