@@ -2,6 +2,7 @@ using APITEST.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
+using Microsoft.AspNetCore.Mvc.TagHelpers.Cache;
 using Nest;
 
 namespace APITEST.Controllers
@@ -62,14 +63,14 @@ namespace APITEST.Controllers
             return new JsonResult(result);
         }
 
-        private object GetDataBooks(string query, int page, int resultCount)
+        private object GetDataBooks(string queryString, int page, int resultCount)
         {
             var offSet = (page - 1) * resultCount;
 
             ISearchResponse<Book> result;
-            query = query?.ToLower();
+            queryString = queryString?.ToLower();
 
-            if (!string.IsNullOrWhiteSpace(query))
+            if (!string.IsNullOrWhiteSpace(queryString))
             {
                 // Búsqueda en múltiples campos mediante claúsulas Match y Field
                 //results = _ecclient.Search<Book>(s => s
@@ -86,10 +87,10 @@ namespace APITEST.Controllers
                     .Query(q => q
                         .Bool(b => b
                             .Should(
-                                bs => bs.Term(t => t.Title, query),
-                                bs => bs.Term(t => t.Isbn, query),
-                                bs => bs.Term(t => t.Authors, query),
-                                bs => bs.Term(t => t.Categories, query)
+                                bs => bs.Term(t => t.Title, queryString),
+                                bs => bs.Term(t => t.Isbn, queryString),
+                                bs => bs.Term(t => t.Authors, queryString),
+                                bs => bs.Term(t => t.Categories, queryString)
                             )
                         )
                     )
@@ -138,18 +139,18 @@ namespace APITEST.Controllers
             return finalResult;
         }
 
-        private object GetDataEmployees(string query, int page, int resultCount)
+        private object GetDataEmployees(string queryString, int page, int resultCount)
         {
             var offSet = (page - 1) * resultCount;           
-            query = query?.ToLower();
+            queryString = $"*{ queryString?.ToLower() }*";
 
             var total = _ecclient.Search<Employee>(s => s
                     .Query(q => q
                         .Bool(b => b
                             .Should(
-                                bs => bs.Term(t => t.firstName, query),
-                                bs => bs.Term(t => t.lastName, query),
-                                bs => bs.Term(t => t.email, query)
+                                bs => bs.Wildcard(t => t.firstName, queryString),
+                                bs => bs.Wildcard(t => t.lastName, queryString),
+                                bs => bs.Wildcard(t => t.email, queryString)
                             )
                         )
                     )
@@ -162,13 +163,40 @@ namespace APITEST.Controllers
                   .Query(q => q
                         .Bool(b => b
                             .Should(
-                                bs => bs.Term(t => t.firstName, query),
-                                bs => bs.Term(t => t.lastName, query),
-                                bs => bs.Term(t => t.email, query)
+                                bs => bs.Wildcard(t => t.firstName, queryString),
+                                bs => bs.Wildcard(t => t.lastName, queryString),
+                                bs => bs.Wildcard(t => t.email, queryString)
                             )
                         )
                     )
              );
+
+            //var total = _ecclient.Search<Employee>(s => s
+            //        .Query(q => q
+            //            .Bool(b => b
+            //                .Should(
+            //                    bs => bs.Term(t => t.firstName, queryString),
+            //                    bs => bs.Term(t => t.lastName, queryString),
+            //                    bs => bs.Term(t => t.email, queryString)
+            //                )
+            //            )
+            //        )
+            // ).Total;
+
+            //var data = _ecclient.Search<Employee>(s => s
+            //     .Size(resultCount)
+            //     .Skip(offSet)
+            //     .Index("employees-index")
+            //      .Query(q => q
+            //            .Bool(b => b
+            //                .Should(
+            //                    bs => bs.Term(t => t.firstName, queryString),
+            //                    bs => bs.Term(t => t.lastName, queryString),
+            //                    bs => bs.Term(t => t.email, queryString)
+            //                )
+            //            )
+            //        )
+            // );
 
             var endCount = offSet + resultCount;
             var more = endCount < total;
